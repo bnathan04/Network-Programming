@@ -1,0 +1,28 @@
+#Balu Viswanathan, 1001328850
+#Diego Amores Vargas, 1001091971
+
+Experimetnal Findings:
+
+In order to find the Tprop and R for each simulator, we sent two messages to each. Using the equation To = 2*(Bits Sent)/R + 2*Tprop, our program solves
+a system of equations to determine Tprop and R for each simulator.
+
+The results are:
+
+Sim1:
+
+Bit rate R = ~1000bps
+Tprop = ~0.5s
+
+Sim2:
+
+Bit rate R = ~1000bps
+Tprop = ~2s
+
+Sim3:
+
+Bit rate R = ~100bps
+Tprop = ~0.1s
+
+In real life, we see different prop delays and bit rate in client-server communication due to distance, infrastructure differences, etc.
+
+
