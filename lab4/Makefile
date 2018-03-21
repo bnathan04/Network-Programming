@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall
+CFLAGS := -g -Wall
 
 sources := client.c server.c
 targets := client server

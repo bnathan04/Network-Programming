@@ -143,7 +143,7 @@ int main(int argc, char *argv[])
     fd_set read_fds;  // temp file descriptor list for select()
     int fdmax;        // maximum file descriptor number
 
-    int listener, port = argv[1];     // listening socket descriptor
+    int listener;     // listening socket descriptor
     int newfd;        // newly accept()ed socket descriptor
     struct sockaddr_storage remoteaddr; // client address
     socklen_t addrlen;
@@ -172,7 +172,7 @@ int main(int argc, char *argv[])
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE;
-    if ((rv = getaddrinfo(NULL, port, &hints, &ai)) != 0) {
+    if ((rv = getaddrinfo(NULL, argv[1], &hints, &ai)) != 0) {
         fprintf(stderr, "selectserver: %s\n", gai_strerror(rv));
         exit(1);
     }
