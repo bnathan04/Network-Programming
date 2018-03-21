@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
     struct addrinfo hints, *ai, *p;
 
     // parse command line args
-    if (argc != 3) {
+    if (argc != 2) {
 	       	fprintf(stderr,"usage: chatserver port#\n");
 		exit(1);
 	}
