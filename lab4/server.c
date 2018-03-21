@@ -53,7 +53,7 @@ insert_conn(char* _name, int _socket, int _state)
 
     // insert
     new->next = head_conn;
-    new->next->prev = new;
+    if (new->next != NULL) new->next->prev = new;
     head_conn = new;
 }
 
