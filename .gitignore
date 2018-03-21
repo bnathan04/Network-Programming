@@ -3,3 +3,4 @@ lab3/client.o
 lab3/lab3.tar.gz
 lab3/listener
 lab3/talker
+.vscode/settings.json
