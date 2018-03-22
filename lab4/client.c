@@ -11,8 +11,58 @@
 #include <sys/select.h>
 #include <arpa/inet.h>
 
+#define BROADCAST "broadcast"
+#define LIST "list"
+#define EXIT "exit"
+
 // double check the max data size limitations
 #define MAXDATASIZE 100 // max number of bytes we can get at once 
+
+// function to handle input parsing
+void
+parse_input(char* buf)
+{
+    char* input = strcpy()
+    char output[MAXDATASIZE];
+    int len;
+    // identify the command 
+    char* str;
+    char* cmd = strtok(buf, " ");
+    
+    // set the output to correct codes for parsing in server    
+    if ( strcmp(cmd, BROADCAST) == 0)
+    {
+        str = buf;            
+        while (*str != '\0')
+        { 
+            str++;
+        }
+        str++;
+
+        len = sprintf(buf, "b %s", str); 
+    }
+    else if (strcmp(cmd, BROADCAST) == 0)
+    {
+        buf[0] = 'l';
+        buf[1] = '\0';
+    }
+    else if (strcmp(cmd, BROADCAST) == 0)
+    {
+        buf[0] = 'x';
+        buf[1] = '\0';
+    }
+    else // client assumes that anything else is a valid username for a pm
+    {
+        str = buf;            
+        while (*str != '\0')
+        { 
+            str++;
+        }
+        str++;
+
+        len = sprintf(buf, "p %s %s", cmd, str);
+    }
+}
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
@@ -96,6 +146,7 @@ int main(int argc, char *argv[])
             exit(4);
         }
 
+        printf("SELECT returned successfully.\n");
         for ( i = 0; i < fd_max + 1; i++)
         {
             if(FD_ISSET(i, &read_fds))
@@ -106,6 +157,9 @@ int main(int argc, char *argv[])
                     fgets(buf, MAXDATASIZE - 1, stdin);
                     
                     // parse input here
+                    parse_input(buf);
+
+                    printf("Parsed input: %s\n", buf);
 
                     // send parsed message to server
                     numbytes = strlen(buf);
@@ -126,38 +180,12 @@ int main(int argc, char *argv[])
                     }
 
                     // terminate the string and output
-                    buf[numbytes] = "\0";
+                    buf[numbytes] = '\0';
                     printf("Received from socket %d:\n", i);
                     printf("%s\n", buf);
                 }
             }
         }
-        // get message from command line 
-        printf("Enter your message:\n");        
-        if (fgets(buf, 256, stdin) == NULL)
-        {
-            perror("read");
-            exit(1);
-        }
-
-        printf("RECV: %s\n", buf);
-        numbytes = strlen(buf);
-        if (send(sockfd, buf, numbytes, 0) == -1)
-        {
-            perror("send");
-            exit(1);
-        }
-
-        printf("Sent to the server.\n");
-
-        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
-        {
-            perror("recv");
-            exit(1);
-        }
-
-        printf("Received from the server.\n");
-
     }
     // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
     //     perror("recv");
