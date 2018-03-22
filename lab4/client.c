@@ -22,8 +22,8 @@
 void
 identify(int sockfd, char* name)
 {
-    char* buf[MAXDATASIZE];
-    int len = sprintf(&buf[0], "u %s", name);
+    char buf[MAXDATASIZE];
+    int len = sprintf(buf, "u %s", name);
     if (len < 0)
     {
         perror("sprintf");
