@@ -16,7 +16,7 @@
 #define EXIT "exit"
 
 // double check the max data size limitations
-#define MAXDATASIZE 100 // max number of bytes we can get at once 
+#define MAXDATASIZE 256 // max number of bytes we can get at once 
 
 // function to handle input parsing
 void

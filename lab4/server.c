@@ -145,7 +145,7 @@ parse_client_msg(char* buf, int sock)
     {
         op = 0;
         // strcpy(user_name, find_conn(NULL, sock, 1)->name);
-        sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, msg[2]);
+        sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, &msg[2]);
     }
 
     return op;
@@ -266,7 +266,7 @@ int main(int argc, char *argv[])
                         FD_SET(newfd, &master); // add to master set
 
                         // add to conn_list
-                        insert_conn(NULL, newfd, S_CONNECTED);
+                        insert_conn("no name", newfd, S_CONNECTED);
 
                         if (newfd > fdmax) {    // keep track of the max
                             fdmax = newfd;
@@ -300,6 +300,7 @@ int main(int argc, char *argv[])
                         // we got some data from a client
                         
                         // parse buf here
+                        buf[nbytes] = '\0';
                         op = parse_client_msg(buf, i);
                         
                         for(j = 0; j <= fdmax; j++) {
