@@ -312,7 +312,7 @@ int main(int argc, char *argv[])
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves
                                 if (j != listener && j != i) {
-                                    if (send(j, buf, nbytes, 0) == -1) {
+                                    if (send(j, buf, strlen(buf), 0) == -1) {
                                         perror("send");
                                     }
                                 }
