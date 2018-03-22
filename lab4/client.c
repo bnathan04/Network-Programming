@@ -18,6 +18,26 @@
 // double check the max data size limitations
 #define MAXDATASIZE 256 // max number of bytes we can get at once 
 
+// send username
+void
+identify(int sockfd, char* name)
+{
+    char* buf[MAXDATASIZE];
+    int len = sprintf(buf, "u %s", name);
+    if (len < 0)
+    {
+        perror("sprintf");
+        exit(1);
+    }
+    buf[len] = '\0';
+
+    if (send(sockfd, buf, strlen(buf), 0) == -1)
+    {
+        perror("send");
+        exit(1);
+    }
+}
+
 // function to handle input parsing
 void
 parse_input(char* buf)
@@ -50,6 +70,7 @@ parse_input(char* buf)
             perror("sprintf");
             exit(1);
         }
+        buf[len] = '\0';
     }
     else if (strcmp(cmd, LIST) == 0)
     {
@@ -76,6 +97,7 @@ parse_input(char* buf)
             perror("sprintf");
             exit(1);
         }
+        buf[len] = '\0';
     }
 }
 
@@ -144,6 +166,9 @@ int main(int argc, char *argv[])
             s, sizeof s);
     printf("client: connecting to %s\n", s);
 
+    // send username to server
+    identify(sockfd, argv[3]);
+
     freeaddrinfo(servinfo); // all done with this structure
 
     // add the server and stdin to the set and keep track of fdmax
@@ -176,8 +201,7 @@ int main(int argc, char *argv[])
                     // printf("Parsed input: %s\n", buf);
 
                     // send parsed message to server
-                    numbytes = strlen(buf);
-                    if (send(sockfd, buf, numbytes, 0) == -1)
+                    if (send(sockfd, buf, strlen(buf), 0) == -1)
                     {
                         perror("send");
                         exit(1);
