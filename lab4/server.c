@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
                         // we got some data from a client
                         for(j = 0; j <= fdmax; j++) {
                             
-                            
+                            printf("New data from socket %d\n", i);
                             // broadcast
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves

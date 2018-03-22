@@ -26,17 +26,23 @@ void *get_in_addr(struct sockaddr *sa)
 
 int main(int argc, char *argv[])
 {
-    int sockfd, numbytes;  
+    int sockfd, numbytes, i;  
     char buf[MAXDATASIZE];
     struct addrinfo hints, *servinfo, *p;
     int rv;
     char s[INET6_ADDRSTRLEN];
+
+    fd_set master, read_fds;
+    int fd_max;
 
     // parse command line arguments
     if (argc != 4) {
         fprintf(stderr,"usage: chatclient [server address] [server port] [username]\n");
         exit(1);
     }
+
+    FD_ZERO(&master);
+    FD_ZERO(&read_fds);
 
     memset(&hints, 0, sizeof hints);
     hints.ai_family = AF_UNSPEC;
@@ -75,9 +81,57 @@ int main(int argc, char *argv[])
 
     freeaddrinfo(servinfo); // all done with this structure
 
+    // add the server and stdin to the set and keep track of fdmax
+    FD_SET(0, &master);
+    FD_SET(sockfd, &master);
+    fd_max = sockfd;
+    
     // main loop
     while (1)
     {
+        read_fds = master;
+        if (select(fd_max+1, &read_fds, NULL, NULL, NULL) == -1)
+        {
+            perror("select");
+            exit(4);
+        }
+
+        for ( i = 0; i < fd_max + 1; i++)
+        {
+            if(FD_ISSET(i, &read_fds))
+            {
+                if (!i) // stdin
+                {
+                    // handle input from commmand line
+                    fgets(buf, MAXDATASIZE - 1, stdin);
+                    
+                    // parse input here
+
+                    // send parsed message to server
+                    numbytes = strlen(buf);
+                    if (send(sockfd, buf, numbytes, 0) == -1)
+                    {
+                        perror("send");
+                        exit(1);
+                    }
+                    printf("Sent user input to server.\n");
+                } 
+                else
+                {
+                    // either server or another client with private messaging
+                    if ((numbytes = recv(i, buf, MAXDATASIZE-1, 0)) == -1)
+                    {
+                        perror("recv");
+                        exit(1);
+                    }
+
+                    // terminate the string and output
+                    buf[numbytes] = "\0";
+                    printf("Received from socket %d:\n", i);
+                    printf("%s\n", buf);
+                }
+            }
+        }
         // get message from command line 
         printf("Enter your message:\n");        
         if (fgets(buf, 256, stdin) == NULL)
@@ -87,7 +141,7 @@ int main(int argc, char *argv[])
         }
 
         printf("RECV: %s\n", buf);
-
+        numbytes = strlen(buf);
         if (send(sockfd, buf, numbytes, 0) == -1)
         {
             perror("send");
@@ -95,6 +149,15 @@ int main(int argc, char *argv[])
         }
 
         printf("Sent to the server.\n");
+
+        if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
+        {
+            perror("recv");
+            exit(1);
+        }
+
+        printf("Received from the server.\n");
+
     }
     // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
     //     perror("recv");
