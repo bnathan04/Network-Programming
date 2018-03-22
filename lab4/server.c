@@ -73,6 +73,7 @@ find_conn(char* _name, int _socket, int method)
         while (cur != NULL)
         {
             if (cur->socket == _socket) return cur;
+            cur = cur->next;
         }
     }
     else if (!method)
@@ -80,6 +81,7 @@ find_conn(char* _name, int _socket, int method)
        while (cur != NULL)
         {
             if (!strcmp(cur->name, _name)) return cur;
+            cur = cur->next;
         } 
     }
 
