@@ -26,7 +26,7 @@ parse_input(char* buf)
     char output[MAXDATASIZE];
     int len;
     // copy input to new string 
-    char* input;
+    char input[MAXDATASIZE];
     strcpy(input, buf);
     // identify the command 
     char* cmd = strtok(input, " ");
@@ -42,7 +42,7 @@ parse_input(char* buf)
             str++;
         }
         while (*(str - 1) != '\0');
-        
+
         len = sprintf(buf, "b %s", str); 
         if (len < 0) 
         {
