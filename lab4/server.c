@@ -10,10 +10,11 @@
 #include <netdb.h>
 #include <sys/select.h>
 
+#define MAXDATASIZE 256
+
 // enumerate connection states
 // CONNECTED => connect function returned 
 // ESTABLISHED => client has been named and identified
-
 enum S_STATE{
     S_CONNECTED,
     S_ESTABLISHED,
@@ -127,6 +128,26 @@ del_conn_list(){
     return (0);
 }
 
+int
+parse_client_msg(char* buf, int sock)
+{
+    int op = -1;
+    // copy buf and parse command
+    char msg[MAXDATASIZE];
+    strcpy(msg, buf);
+    char cmd = msg[0];
+    char* user_name;
+
+    if (cmd == 'b')
+    {
+        op = 0;
+        strcpy(user_name, find_conn(NULL, sock, 1)->name);
+        sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, msg[2]);
+    }
+
+    return op;
+}
+
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
 {
@@ -154,7 +175,7 @@ int main(int argc, char *argv[])
     char remoteIP[INET6_ADDRSTRLEN];
 
     int yes=1;        // for setsockopt() SO_REUSEADDR, below
-    int i, j, rv;
+    int i, j, rv, op;
 
     struct addrinfo hints, *ai, *p;
 
@@ -277,6 +298,10 @@ int main(int argc, char *argv[])
                         for(j = 0; j <= fdmax; j++) {
                             
                             printf("New data from socket %d\n", i);
+                            
+                            // parse buf here
+                            op = parse_client_msg(buf, i);
+
                             // broadcast
                             if (FD_ISSET(j, &master)) {
                                 // except the listener and ourselves

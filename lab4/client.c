@@ -32,7 +32,7 @@ parse_input(char* buf)
     char* cmd = strtok(input, " ");
     
     // set the output to correct codes for parsing in server    
-    if ( strcmp(cmd, BROADCAST) == 0)
+    if (strcmp(cmd, BROADCAST) == 0)
     {
         // strtok leaves behind a null terminator at the point it finds the delimiter
         // take advantage of this to extract the message which is right after the delimiter 
@@ -43,6 +43,7 @@ parse_input(char* buf)
         }
         while (*(str - 1) != '\0');
 
+        printf("str result: %s\n", str);
         len = sprintf(buf, "b %s", str); 
         if (len < 0) 
         {
@@ -50,12 +51,12 @@ parse_input(char* buf)
             exit(1);
         }
     }
-    else if (strcmp(cmd, BROADCAST) == 0)
+    else if (strcmp(cmd, LIST) == 0)
     {
         buf[0] = 'l';
         buf[1] = '\0';
     }
-    else if (strcmp(cmd, BROADCAST) == 0)
+    else if (strcmp(cmd, EXIT) == 0)
     {
         buf[0] = 'x';
         buf[1] = '\0';
@@ -160,7 +161,6 @@ int main(int argc, char *argv[])
             exit(4);
         }
 
-        printf("SELECT returned successfully.\n");
         for ( i = 0; i < fd_max + 1; i++)
         {
             if(FD_ISSET(i, &read_fds))
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
                     // parse input here
                     parse_input(buf);
 
-                    printf("Parsed input: %s\n", buf);
+                    // printf("Parsed input: %s\n", buf);
 
                     // send parsed message to server
                     numbytes = strlen(buf);
@@ -182,7 +182,7 @@ int main(int argc, char *argv[])
                         perror("send");
                         exit(1);
                     }
-                    printf("Sent user input to server.\n");
+                    // printf("Sent user input to server.\n");
                 } 
                 else
                 {
