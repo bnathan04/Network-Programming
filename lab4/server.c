@@ -67,7 +67,8 @@ find_conn(char* _name, int _socket, int method)
     Connection* cur = head_conn;
 
     // loop through linked list and find what we are looking for
-    if (method) 
+    if (cur == NULL) return NULL;
+    else if (method) 
     {
         while (cur != NULL)
         {
@@ -83,7 +84,7 @@ find_conn(char* _name, int _socket, int method)
     }
 
     // not found
-    return(NULL);
+    return NULL;
 }
 
 // delete a single node
@@ -141,7 +142,7 @@ parse_client_msg(char* buf, int sock)
     if (cmd == 'b')
     {
         op = 0;
-        strcpy(user_name, find_conn(NULL, sock, 1)->name);
+        // strcpy(user_name, find_conn(NULL, sock, 1)->name);
         sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, msg[2]);
     }
 
@@ -295,12 +296,14 @@ int main(int argc, char *argv[])
                         // should delete each one from linked list here ideally                        
                     } else {
                         // we got some data from a client
+                        
+                        // parse buf here
+                        op = parse_client_msg(buf, i);
+                        
                         for(j = 0; j <= fdmax; j++) {
                             
                             printf("New data from socket %d\n", i);
                             
-                            // parse buf here
-                            op = parse_client_msg(buf, i);
 
                             // broadcast
                             if (FD_ISSET(j, &master)) {
