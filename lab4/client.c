@@ -22,24 +22,33 @@
 void
 parse_input(char* buf)
 {
-    char* input = strcpy()
+    char* str;
     char output[MAXDATASIZE];
     int len;
+    // copy input to new string 
+    char* input;
+    strcpy(input, buf);
     // identify the command 
-    char* str;
-    char* cmd = strtok(buf, " ");
+    char* cmd = strtok(input, " ");
     
     // set the output to correct codes for parsing in server    
     if ( strcmp(cmd, BROADCAST) == 0)
     {
-        str = buf;            
-        while (*str != '\0')
+        // strtok leaves behind a null terminator at the point it finds the delimiter
+        // take advantage of this to extract the message which is right after the delimiter 
+        str = input;            
+        do
         { 
             str++;
         }
-        str++;
-
+        while (*(str - 1) != '\0');
+        
         len = sprintf(buf, "b %s", str); 
+        if (len < 0) 
+        {
+            perror("sprintf");
+            exit(1);
+        }
     }
     else if (strcmp(cmd, BROADCAST) == 0)
     {
@@ -53,14 +62,19 @@ parse_input(char* buf)
     }
     else // client assumes that anything else is a valid username for a pm
     {
-        str = buf;            
-        while (*str != '\0')
+        str = input;            
+        do
         { 
             str++;
         }
-        str++;
+        while (*(str - 1) != '\0');
 
         len = sprintf(buf, "p %s %s", cmd, str);
+        if (len < 0) 
+        {
+            perror("sprintf");
+            exit(1);
+        }
     }
 }
 
