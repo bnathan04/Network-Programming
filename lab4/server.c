@@ -11,7 +11,7 @@
 #include <sys/select.h>
 
 #define MAXDATASIZE 256
-#define ERR "Not an available operation, try again.\n"
+#define ERR_MSG "Not an available operation, try again.\n"
 
 // enumerate connection states
 // CONNECTED => connect function returned 
@@ -26,6 +26,13 @@ enum S_STATE{
 enum SEARCH{
     NAME_SEARCH,
     SOCK_SEARCH
+};
+
+enum FUNCTION{
+    BROADCAST,
+    PRIVATE,
+    LIST,
+    ERROR
 };
 
 // struct to encapsulate client connection info in linked list node
@@ -122,6 +129,17 @@ del_conn(Connection* node, char* _name, int _socket, int method)
     return(0);
 }
 
+void
+print_conn(char* buf){
+    if (head_conn == NULL) buf = NULL;
+
+    sprintf(buf, "%s\n", head_conn->name);
+    Connection* cur = head_conn->next;
+    while (cur!=NULL){
+        sprintf(buf, "%s\n", strcat(buf, cur->name));
+    }
+}
+
 // delete entire list
 int
 del_conn_list(){
@@ -149,14 +167,14 @@ parse_client_msg(char* buf, int sock, int* rcv_sock)
 
     if (cmd == 'b')
     {
-        op = 0;
+        op = BROADCAST;
         len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
         // sprint err check
         buf[len] = '\0';
     }
     else if (cmd == 'u')
     {
-        op = 0;
+        op = BROADCAST;
         strcpy(find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
         find_conn(NULL, sock, SOCK_SEARCH)->state = S_ESTABLISHED;
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
@@ -165,13 +183,21 @@ parse_client_msg(char* buf, int sock, int* rcv_sock)
     }
     else if (cmd == 'p')
     {
-        op = 1;
+        op = PRIVATE;
         rcv_name = strtok(&msg[2], " ");
         Connection* rcv = find_conn(rcv_name, -1, NAME_SEARCH);
-        if (rcv == NULL) return -1;
+        if (rcv == NULL) return ERROR;
         *rcv_sock = rcv->socket;
         str = (&msg[2] + strlen(rcv_name) + 1);
         len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, str);
+        // sprintf err check
+        buf[len] = '\0';
+    }
+    else if (cmd == 'l')
+    {
+        op = LIST;
+        print_conn(buf);
+        len = strlen(buf);
         // sprintf err check
         buf[len] = '\0';
     }
@@ -331,7 +357,7 @@ int main(int argc, char *argv[])
                         buf[nbytes] = '\0';
                         int rcv_sock = -1;
                         op = parse_client_msg(buf, i, &rcv_sock);
-                        if (op == 0) {
+                        if (op == BROADCAST) {
                             printf("Broadcast\n");
                             for(j = 0; j <= fdmax; j++) {
                                 
@@ -348,16 +374,23 @@ int main(int argc, char *argv[])
                                 }
                             }
                         }
-                        else if (op == 1) {
+                        else if (op == PRIVATE) {
                             printf("PM\n");
                             if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
                                 perror("send");
                                 exit(1);
                             }                     
                         }
-                        else if (op == -1) {
+                         else if (op == LIST) {
+                            printf("LIST\n");
+                            if (send(i, buf, strlen(buf), 0) == -1) {
+                                perror("send");
+                                exit(1);
+                            }                     
+                        }
+                        else if (op == ERROR) {
                             printf("ERR\n");
-                            if (send(i, ERR, strlen(ERR), 0) == -1) {
+                            if (send(i, ERR_MSG, strlen(ERR_MSG), 0) == -1) {
                                 perror("send");
                                 exit(1);
                             }                     
