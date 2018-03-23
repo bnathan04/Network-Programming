@@ -47,7 +47,8 @@ insert_conn(char* _name, int _socket, int _state)
 {
     // create new node and fill in details
     Connection* new = (Connection*)malloc(sizeof(Connection));
-    new->name = _name;
+    new->name = (char*)malloc(sizeof(char) * MAXDATASIZE);
+    strcpy(new->name, _name);
     new->socket = _socket;
     new->state = _state;
     new->prev = NULL;
@@ -113,6 +114,8 @@ del_conn(Connection* node, char* _name, int _socket, int method)
     if (head_conn == for_del) head_conn = for_del->next;
     for_del->prev = NULL;
     for_del->next = NULL;
+    free(for_del->name);
+    for_del->name = NULL;
     free(for_del);
     for_del = NULL;
     return(0);
@@ -150,7 +153,7 @@ parse_client_msg(char* buf, int sock)
     else if (cmd == 'u')
     {
         op = 0;
-        find_conn(NULL, sock, 1)->name = &msg[2];
+        strcpy(find_conn(NULL, sock, 1)->name, &msg[2]);
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
         buf[len] = '\0';
     }
