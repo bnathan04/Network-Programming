@@ -11,6 +11,7 @@
 #include <sys/select.h>
 
 #define MAXDATASIZE 256
+#define ERR "Not an available operation, try again.\n"
 
 // enumerate connection states
 // CONNECTED => connect function returned 
@@ -350,6 +351,13 @@ int main(int argc, char *argv[])
                         else if (op == 1) {
                             printf("PM\n");
                             if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
+                                perror("send");
+                                exit(1);
+                            }                     
+                        }
+                        else if (op == -1) {
+                            printf("ERR\n");
+                            if (send(i, ERR, strlen(ERR), 0) == -1) {
                                 perror("send");
                                 exit(1);
                             }                     
