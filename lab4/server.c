@@ -144,14 +144,13 @@ parse_client_msg(char* buf, int sock)
     if (cmd == 'b')
     {
         op = 0;
-        // strcpy(user_name, find_conn(NULL, sock, 1)->name);
         len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, &msg[2]);
         buf[len] = '\0';
     }
     else if (cmd == 'u')
     {
         op = 0;
-        strcpy(find_conn(NULL, sock, 1)->name, &msg[2]);
+        find_conn(NULL, sock, 1)->name = &msg[2];
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
         buf[len] = '\0';
     }
