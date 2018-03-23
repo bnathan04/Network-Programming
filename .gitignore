@@ -8,3 +8,5 @@ lab4/client
 lab4/client.o
 lab4/server
 lab4/server.o
+lab4/chatclient
+lab4/chatserver

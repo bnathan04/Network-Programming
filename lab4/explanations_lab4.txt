@@ -1,0 +1,6 @@
+#Balu Viswanathan, 1001328850
+#Diego Amores Vargas, 1001091971
+
+To solve concurrency problems in the client and the server we used select(). This functions allows the program to wait for the file descriptor lists to be updated. We then used fd_ISSET to check which socket(or STDIN) is sending information.
+
+The other option that we did not use was to implement threads, with fork() and wait() sys calls used appropriately. The advantage of this method is probably speed, since our implementation of select blocks until a fd list is updated.

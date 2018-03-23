@@ -349,7 +349,7 @@ int main(int argc, char *argv[])
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
-                            printf("User %s socket %d exited.\n", cur->name,i);
+                            printf("User \"%s\" on socket %d exited.\n", cur->name,i);
                         } else {
                             perror("recv");
                         }

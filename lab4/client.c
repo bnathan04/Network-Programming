@@ -51,8 +51,9 @@ parse_input(char* buf)
     // identify the command 
     char* cmd = strtok(input, " \n\r\0");
     
-    // set the output to correct codes for parsing in server    
-    if (strcmp(cmd, BROADCAST) == 0)
+    // set the output to correct codes for parsing in server
+    if (cmd == NULL) buf = "Error";
+    else if (strcmp(cmd, BROADCAST) == 0)
     {
         // strtok leaves behind a null terminator at the point it finds the delimiter
         // take advantage of this to extract the message which is right after the delimiter 
