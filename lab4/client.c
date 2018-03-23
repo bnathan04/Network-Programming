@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
                     // parse input here
                     parse_input(buf);
 
-                    printf("Parsed input: %s\n", buf);
+                    // printf("Parsed input: %s\n", buf);
                     if (buf[0] == 'x') break;
 
 
@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
 
                     // terminate the string and output
                     buf[numbytes] = '\0';
-                    printf("Received from socket %d:\n", i);
+                    // printf("Received from socket %d:\n", i);
                     printf("%s\n", buf);
                 }
             }

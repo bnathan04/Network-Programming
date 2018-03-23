@@ -358,7 +358,7 @@ int main(int argc, char *argv[])
                         int rcv_sock = -1;
                         op = parse_client_msg(buf, i, &rcv_sock);
                         if (op == BROADCAST) {
-                            printf("Broadcast\n");
+                            // printf("Broadcast\n");
                             for(j = 0; j <= fdmax; j++) {
                                 
                                 // printf("New data from socket %d\n", i);
@@ -375,14 +375,14 @@ int main(int argc, char *argv[])
                             }
                         }
                         else if (op == PRIVATE) {
-                            printf("PM\n");
+                            // printf("PM\n");
                             if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
                                 perror("send");
                                 exit(1);
                             }                     
                         }
                         else if (op == LIST) {
-                            printf("LIST\n");
+                            // printf("LIST\n");
                             sprintf(buf, "List of Active Users:\n");
                                 if (send(i, buf, strlen(buf), 0) == -1) {
                                     perror("send");
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
                             } 
                         }
                         else if (op == ERROR) {
-                            printf("ERR\n");
+                            // printf("ERR\n");
                             if (send(i, ERR_MSG, strlen(ERR_MSG), 0) == -1) {
                                 perror("send");
                                 exit(1);
