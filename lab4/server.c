@@ -383,8 +383,13 @@ int main(int argc, char *argv[])
                         }
                         else if (op == LIST) {
                             printf("LIST\n");
+                            sprintf(buf, "List of Active Users:\n");
+                                if (send(i, buf, strlen(buf), 0) == -1) {
+                                    perror("send");
+                                    exit(1);
+                                }   
                             Connection* cur = head_conn;
-                            while (cur != NULL){
+                            while (cur != NULL && cur->next != NULL){
                                 sprintf(buf, "%s\n", cur->name);
                                 if (send(i, buf, strlen(buf), 0) == -1) {
                                     perror("send");
