@@ -2,18 +2,18 @@ CC := gcc
 CFLAGS := -g -Wall
 
 sources := client.c server.c
-targets := client server
+targets := chatclient chatserver
 
 .PHONY: clean default all
 
 default: all
 all: $(targets)
 
-client: client.o
-	$(CC) -o client client.o
+chatclient: client.o
+	$(CC) -o chatclient client.o
 
-server: server.o
-	$(CC) -o server server.o
+chatserver: server.o
+	$(CC) -o chatserver server.o
 
 client.o: client.c
 	$(CC) $(CFLAGS) -c -o client.o client.c

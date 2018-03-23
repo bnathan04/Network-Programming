@@ -28,6 +28,7 @@ enum SEARCH{
     SOCK_SEARCH
 };
 
+// enumerate chatroom functions
 enum FUNCTION{
     BROADCAST,
     PRIVATE,
@@ -37,7 +38,6 @@ enum FUNCTION{
 
 // struct to encapsulate client connection info in linked list node
 typedef struct Connection{
-
     char* name;
     int socket, state;  
     struct Connection* next;
@@ -99,13 +99,14 @@ find_conn(char* _name, int _socket, int method)
 }
 
 // delete a single node
+// can pass ptr to node for deletion, or name/socket
 int
 del_conn(Connection* node, char* _name, int _socket, int method)
 {
     Connection* for_del;
-    // find the node
     if (node == NULL)
     {
+    // find the node
         for_del = find_conn(_name, _socket, method);
         if (for_del == NULL) return 1;
     }
@@ -129,17 +130,6 @@ del_conn(Connection* node, char* _name, int _socket, int method)
     return(0);
 }
 
-void
-print_conn(char* buf){
-    if (head_conn == NULL) buf = NULL;
-
-    sprintf(buf, "%s\n", head_conn->name);
-    Connection* cur = head_conn->next;
-    while (cur!=NULL){
-        sprintf(buf, "%s\n", strcat(buf, cur->name));
-    }
-}
-
 // delete entire list
 int
 del_conn_list(){
@@ -153,44 +143,65 @@ del_conn_list(){
     return (0);
 }
 
+// parse the msg from the client
 int
-parse_client_msg(char* buf, int sock, int* rcv_sock)
+parse_client_msg(char* buf, Connection* cur, int* rcv_sock)
 {
     int len, op = -1;
     // copy buf and parse command
     char msg[MAXDATASIZE];
     strcpy(msg, buf);
     char cmd = msg[0];
-    char* snd_name;
     char* rcv_name;
     char* str;
 
     if (cmd == 'b')
     {
+        // client wants to broadcast message
         op = BROADCAST;
-        len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
-        // sprint err check
+        len = sprintf(buf, "Broadcast --- %s: %s\n", cur->name, &msg[2]);
+        if (len < 0) 
+        {
+            perror("sprintf");
+            exit(1);
+        }
         buf[len] = '\0';
     }
     else if (cmd == 'u')
     {
+        // client is identifying themselves after initial connection
         op = BROADCAST;
-        strcpy(find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
-        find_conn(NULL, sock, SOCK_SEARCH)->state = S_ESTABLISHED;
+
+        // update client name and state, before updating buf
+        strcpy(cur->name, &msg[2]);
+        cur->state = S_ESTABLISHED;
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
-        // sprintf err check
+        if (len < 0) 
+        {
+            perror("sprintf");
+            exit(1);
+        }
         buf[len] = '\0';
     }
     else if (cmd == 'p')
     {
         op = PRIVATE;
+        // intended receiver should be next string in message
+        // find the rcv connection node by name and update socket
+        // if not found ret error
         rcv_name = strtok(&msg[2], " ");
         Connection* rcv = find_conn(rcv_name, -1, NAME_SEARCH);
         if (rcv == NULL) return ERROR;
         *rcv_sock = rcv->socket;
+
+        // actual chat message is location of rcv name + lenght of rcv name + 1 for null left behind by strtok
         str = (&msg[2] + strlen(rcv_name) + 1);
-        len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, str);
-        // sprintf err check
+        len = sprintf(buf, "Private --- %s: %s\n", cur->name, str);
+        if (len < 0) 
+        {
+            perror("sprintf");
+            exit(1);
+        }
         buf[len] = '\0';
     }
     else if (cmd == 'l')
@@ -338,7 +349,7 @@ int main(int argc, char *argv[])
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
-                            printf("Socket %d exited.\n", i);
+                            printf("User %s socket %d exited.\n", cur->name,i);
                         } else {
                             perror("recv");
                         }
@@ -356,7 +367,7 @@ int main(int argc, char *argv[])
                         // parse buf here
                         buf[nbytes] = '\0';
                         int rcv_sock = -1;
-                        op = parse_client_msg(buf, i, &rcv_sock);
+                        op = parse_client_msg(buf, cur, &rcv_sock);
                         if (op == BROADCAST) {
                             // printf("Broadcast\n");
                             for(j = 0; j <= fdmax; j++) {

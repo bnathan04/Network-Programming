@@ -200,7 +200,6 @@ int main(int argc, char *argv[])
                     // printf("Parsed input: %s\n", buf);
                     if (buf[0] == 'x') break;
 
-
                     // send parsed message to server
                     if (send(sockfd, buf, strlen(buf), 0) == -1)
                     {
