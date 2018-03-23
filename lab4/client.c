@@ -197,6 +197,8 @@ int main(int argc, char *argv[])
                     // parse input here
                     parse_input(buf);
 
+                    if (buf[0] == 'x') break;
+
                     // printf("Parsed input: %s\n", buf);
 
                     // send parsed message to server
@@ -223,17 +225,10 @@ int main(int argc, char *argv[])
                 }
             }
         }
+        if (buf[0] == 'x') break;
     }
-    // if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
-    //     perror("recv");
-    //     exit(1);
-    // }
-
-    buf[numbytes] = '\0';
-
-    printf("client: received '%s'\n",buf);
 
     close(sockfd);
-
+    
     return 0;
 }
