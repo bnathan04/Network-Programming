@@ -196,10 +196,6 @@ parse_client_msg(char* buf, int sock, int* rcv_sock)
     else if (cmd == 'l')
     {
         op = LIST;
-        print_conn(buf);
-        len = strlen(buf);
-        // sprintf err check
-        buf[len] = '\0';
     }
 
     return op;
@@ -381,12 +377,16 @@ int main(int argc, char *argv[])
                                 exit(1);
                             }                     
                         }
-                         else if (op == LIST) {
+                        else if (op == LIST) {
                             printf("LIST\n");
-                            if (send(i, buf, strlen(buf), 0) == -1) {
-                                perror("send");
-                                exit(1);
-                            }                     
+                            Connection* cur = head_conn;
+                            while (cur != NULL){
+                                sprintf(buf, "%s", cur->name);
+                                if (send(i, buf, strlen(buf), 0) == -1) {
+                                    perror("send");
+                                    exit(1);
+                                }                     
+                            } 
                         }
                         else if (op == ERROR) {
                             printf("ERR\n");
