@@ -345,7 +345,11 @@ int main(int argc, char *argv[])
                         close(i); // bye!
                         FD_CLR(i, &master); // remove from master set                
                         cur->state = S_CLOSED;
-                        // should delete each one from linked list here ideally                        
+                        if (del_conn(cur, NULL, -1, -1)) 
+                        {
+                            perror("delete");
+                            exit(1);
+                        }                        
                     } else {
                         // we got some data from a client
                         
@@ -381,7 +385,7 @@ int main(int argc, char *argv[])
                             printf("LIST\n");
                             Connection* cur = head_conn;
                             while (cur != NULL){
-                                sprintf(buf, "%s", cur->name);
+                                sprintf(buf, "%s\n", cur->name);
                                 if (send(i, buf, strlen(buf), 0) == -1) {
                                     perror("send");
                                     exit(1);
