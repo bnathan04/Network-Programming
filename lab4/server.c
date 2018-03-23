@@ -157,6 +157,7 @@ parse_client_msg(char* buf, int sock, int* rcv_sock)
     {
         op = 0;
         strcpy(find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
+        find_conn(NULL, sock, SOCK_SEARCH)->state = S_ESTABLISHED;
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
         // sprintf err check
         buf[len] = '\0';
@@ -246,7 +247,7 @@ int main(int argc, char *argv[])
 
     // if we got here, it means we didn't get bound
     if (p == NULL) {
-        fprintf(stderr, "selectserver: failed to bind\n");
+        fprintf(stderr, "Failed to bind.\n");
         exit(2);
     }
 
@@ -297,8 +298,8 @@ int main(int argc, char *argv[])
                         if (newfd > fdmax) {    // keep track of the max
                             fdmax = newfd;
                         }
-                        printf("selectserver: new connection from %s on "
-                            "socket %d\n",
+                        printf("New connection from %s on "
+                            "socket %d.\n",
                             inet_ntop(remoteaddr.ss_family,
                                 get_in_addr((struct sockaddr*)&remoteaddr),
                                 remoteIP, INET6_ADDRSTRLEN),
@@ -314,7 +315,7 @@ int main(int argc, char *argv[])
                         // got error or connection closed by client
                         if (nbytes == 0) {
                             // connection closed
-                            printf("selectserver: socket %d hung up\n", i);
+                            printf("Socket %d exited.\n", i);
                         } else {
                             perror("recv");
                         }
