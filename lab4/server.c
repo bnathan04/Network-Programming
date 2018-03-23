@@ -329,12 +329,12 @@ int main(int argc, char *argv[])
                         buf[nbytes] = '\0';
                         int rcv_sock = -1;
                         op = parse_client_msg(buf, i, &rcv_sock);
-                        
-                        for(j = 0; j <= fdmax; j++) {
-                            
-                            printf("New data from socket %d\n", i);
-                            
-                            if (op == 0){
+                        if (op == 0) {
+                            printf("Broadcast\n");
+                            for(j = 0; j <= fdmax; j++) {
+                                
+                                // printf("New data from socket %d\n", i);
+                                
                                 if (FD_ISSET(j, &master)) {
                                     // except the listener and ourselves
                                     if (j != listener && j != i) {
@@ -345,13 +345,14 @@ int main(int argc, char *argv[])
                                     }
                                 }
                             }
-                            else if (op == 1){
-                                if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
-                                    perror("send");
-                                    exit(1);
-                                }
-                            }                       
-                        }   
+                        }
+                        else if (op == 1) {
+                            printf("PM\n");
+                            if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
+                                perror("send");
+                                exit(1);
+                            }                     
+                        }       
                     }
                 } // END handle data from client
             } // END got new incoming connection
