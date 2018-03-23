@@ -63,7 +63,6 @@ parse_input(char* buf)
         }
         while (*(str - 1) != '\0');
 
-        printf("str result: %s\n", str);
         len = sprintf(buf, "b %s", str); 
         if (len < 0) 
         {

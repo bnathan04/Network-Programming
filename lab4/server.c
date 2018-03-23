@@ -135,26 +135,40 @@ del_conn_list(){
 }
 
 int
-parse_client_msg(char* buf, int sock)
+parse_client_msg(char* buf, int sock, int* rcv_sock)
 {
     int len, op = -1;
     // copy buf and parse command
     char msg[MAXDATASIZE];
     strcpy(msg, buf);
     char cmd = msg[0];
-    char* user_name;
+    char* snd_name, rcv_name, str;
 
     if (cmd == 'b')
     {
         op = 0;
-        len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, 1)->name, &msg[2]);
+        len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
+        // sprint err check
         buf[len] = '\0';
     }
     else if (cmd == 'u')
     {
         op = 0;
-        strcpy(find_conn(NULL, sock, 1)->name, &msg[2]);
+        strcpy(find_conn(NULL, sock, SOCK_SEARCH)->name, &msg[2]);
         len = sprintf(buf, "User \"%s\" connected.\n", &msg[2]);
+        // sprintf err check
+        buf[len] = '\0';
+    }
+    else if (cmd == 'p')
+    {
+        op = 1;
+        rcv_name = strtok(&msg[2], " ");
+        Connection* rcv = find_conn(rcv_name, -1, NAME_SEARCH);
+        if (rcv == NULL) return -1;
+        *rcv_sock = rcv->socket;
+        str = (&msg[2] + strlen(rcv_name) + 1);
+        len = sprintf(buf, "%s: %s\n", find_conn(NULL, sock, SOCK_SEARCH)->name, str);
+        // sprintf err check
         buf[len] = '\0';
     }
 
@@ -311,23 +325,31 @@ int main(int argc, char *argv[])
                         
                         // parse buf here
                         buf[nbytes] = '\0';
-                        op = parse_client_msg(buf, i);
+                        int* rcv_sock = NULL;
+                        op = parse_client_msg(buf, i, rcv_sock);
                         
                         for(j = 0; j <= fdmax; j++) {
                             
                             printf("New data from socket %d\n", i);
                             
-
-                            // broadcast
-                            if (FD_ISSET(j, &master)) {
-                                // except the listener and ourselves
-                                if (j != listener && j != i) {
-                                    if (send(j, buf, strlen(buf), 0) == -1) {
-                                        perror("send");
+                            if (op == 0){
+                                if (FD_ISSET(j, &master)) {
+                                    // except the listener and ourselves
+                                    if (j != listener && j != i) {
+                                        if (send(j, buf, strlen(buf), 0) == -1) {
+                                            perror("send");
+                                            exit(1);
+                                        }
                                     }
                                 }
                             }
-                        }
+                            else if (op == 1){
+                                if (send(*rcv_sock, buf, strlen(buf), 0) == -1) {
+                                    perror("send");
+                                    exit(1);
+                                }
+                            }                       
+                        }   
                     }
                 } // END handle data from client
             } // END got new incoming connection
