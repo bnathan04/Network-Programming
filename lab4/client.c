@@ -49,7 +49,7 @@ parse_input(char* buf)
     char input[MAXDATASIZE];
     strcpy(input, buf);
     // identify the command 
-    char* cmd = strtok(input, " ");
+    char* cmd = strtok(input, " \n\r\0");
     
     // set the output to correct codes for parsing in server    
     if (strcmp(cmd, BROADCAST) == 0)
@@ -197,9 +197,9 @@ int main(int argc, char *argv[])
                     // parse input here
                     parse_input(buf);
 
+                    printf("Parsed input: %s\n", buf);
                     if (buf[0] == 'x') break;
 
-                    // printf("Parsed input: %s\n", buf);
 
                     // send parsed message to server
                     if (send(sockfd, buf, strlen(buf), 0) == -1)
@@ -229,6 +229,6 @@ int main(int argc, char *argv[])
     }
 
     close(sockfd);
-    
+
     return 0;
 }
