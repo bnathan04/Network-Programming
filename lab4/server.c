@@ -385,7 +385,8 @@ int main(int argc, char *argv[])
                                 if (send(i, buf, strlen(buf), 0) == -1) {
                                     perror("send");
                                     exit(1);
-                                }                     
+                                }   
+                                cur = cur->next;                  
                             } 
                         }
                         else if (op == ERROR) {
