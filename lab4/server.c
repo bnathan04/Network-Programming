@@ -327,8 +327,8 @@ int main(int argc, char *argv[])
                         
                         // parse buf here
                         buf[nbytes] = '\0';
-                        int* rcv_sock = NULL;
-                        op = parse_client_msg(buf, i, rcv_sock);
+                        int rcv_sock = -1;
+                        op = parse_client_msg(buf, i, &rcv_sock);
                         
                         for(j = 0; j <= fdmax; j++) {
                             
@@ -346,7 +346,7 @@ int main(int argc, char *argv[])
                                 }
                             }
                             else if (op == 1){
-                                if (send(*rcv_sock, buf, strlen(buf), 0) == -1) {
+                                if (send(rcv_sock, buf, strlen(buf), 0) == -1) {
                                     perror("send");
                                     exit(1);
                                 }
