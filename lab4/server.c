@@ -142,7 +142,9 @@ parse_client_msg(char* buf, int sock, int* rcv_sock)
     char msg[MAXDATASIZE];
     strcpy(msg, buf);
     char cmd = msg[0];
-    char* snd_name, rcv_name, str;
+    char* snd_name;
+    char* rcv_name;
+    char* str;
 
     if (cmd == 'b')
     {
